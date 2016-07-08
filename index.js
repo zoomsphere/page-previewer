@@ -84,6 +84,7 @@ function parseResponse(res, body, url) {
         host,
 		title,
 		description,
+        keywords,
 		mediaType,
 		images,
 		videos,
@@ -97,6 +98,8 @@ function parseResponse(res, body, url) {
 
 	description = getDescription(doc);
 
+    keywords = getKeywords(doc);
+
 	mediaType = getMediaType(doc);
 
 	images = getImages(doc, url);
@@ -105,7 +108,7 @@ function parseResponse(res, body, url) {
 
     audios = getAudios(doc);
 
-	return createResponseData(url, host, false, title, description, "text/html", mediaType, images, videos, audios);
+	return createResponseData(url, host, false, title, description, keywords, "text/html", mediaType, images, videos, audios);
 }
 
 function getTitle(doc){
@@ -250,22 +253,36 @@ function getAudios(doc) {
     return audios;
 }
 
+function getKeywords(doc) {
+    var keywords;
+    var keywordsString = doc("meta[name='keywords']").attr("content");
+
+    if(keywordsString) {
+        keywords = keywordsString.split(',');
+    } else {
+        keywords = [];
+    }
+
+    return keywords;
+}
+
 function parseMediaResponse(res, contentType, url) {
     var host = res.request.uri["host"];
 	if(contentType.indexOf("image/") === 0) {
-		return createResponseData(url, host, false, "", "", contentType, "photo", [url]);
+		return createResponseData(url, host, false, "", "", [], contentType, "photo", [url]);
 	} else {
-		return createResponseData(url, host, false, "", "", contentType);
+		return createResponseData(url, host, false, "", "", [], contentType);
 	}
 }
 
-function createResponseData(url, host, loadFailed, title, description, contentType, mediaType, images, videos, audios) {
+function createResponseData(url, host, loadFailed, title, description, keywords, contentType, mediaType, images, videos, audios) {
 	return {
 		url: url,
         host: host,
 		loadFailed: loadFailed,
 		title: title,
 		description: description,
+        keywords: keywords,
 		contentType: contentType,
 		mediaType: mediaType || "website",
 		images: images,
