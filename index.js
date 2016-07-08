@@ -15,6 +15,7 @@ function getPreview(urlObj, callback) {
 
     if (typeof(urlObj) === "object") {
         options = Object.assign(options, urlObj);
+		if (options.url) options.uri = options.url;
     } else {
         options.uri = urlObj;
     }
@@ -26,7 +27,7 @@ function getPreview(urlObj, callback) {
 			var decodedBody = decodeBody(response, body);
             callback(null, parseResponse(response, decodedBody, url));
 		} else {
-            var host = res.request.uri["host"];
+            var host = response.request.uri["host"];
 			callback(null, createResponseData(url, host, true));
 		}
 	} );
