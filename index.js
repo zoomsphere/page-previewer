@@ -86,7 +86,8 @@ function parseResponse(res, body, url) {
 		description,
 		mediaType,
 		images,
-		videos;
+		videos,
+        audios;
 
     host = res.request.uri["host"];
 
@@ -102,7 +103,9 @@ function parseResponse(res, body, url) {
 
 	videos = getVideos(doc);
 
-	return createResponseData(url, host, false, title, description, "text/html", mediaType, images, videos);
+    audios = getAudios(doc);
+
+	return createResponseData(url, host, false, title, description, "text/html", mediaType, images, videos, audios);
 }
 
 function getTitle(doc){
@@ -228,6 +231,23 @@ function getVideos(doc) {
 	}
 
 	return videos;
+}
+
+
+function getAudios(doc) {
+    var audios;
+
+    var nodes = doc("meta[property='og:audio']");
+    var length = nodes.length;
+    if(length) {
+        audios = [];
+
+        for(var index = 0; index < length; index++) {
+            audios.push(nodes[index].attribs["content"]);
+        }
+    }
+
+    return audios;
 }
 
 function parseMediaResponse(res, contentType, url) {
