@@ -24,9 +24,10 @@ function getPreview(urlObj, callback) {
 	var req = request(options, function(err, response, body) {
 		if(!err && response.statusCode === 200 && body) {
 			var decodedBody = decodeBody(response, body);
-            callback(null, parseResponse(decodedBody, url));
+            callback(null, parseResponse(response, decodedBody, url));
 		} else {
-			callback(null, createResponseData(url, true));
+            var host = res.request.uri["host"];
+			callback(null, createResponseData(url, host, true));
 		}
 	} );
 
@@ -78,16 +79,20 @@ function decodeBody(response, bodyBuffer) {
     }
 }
 
-function parseResponse(body, url) {
+function parseResponse(res, body, url) {
 	var doc,
+        host,
 		title,
 		description,
 		mediaType,
 		images,
 		videos;
 
-	doc = cheerio.load(body);
-	title = getTitle(doc);
+    host = res.request.uri["host"];
+
+    doc = cheerio.load(body);
+
+    title = getTitle(doc);
 
 	description = getDescription(doc);
 
@@ -97,7 +102,7 @@ function parseResponse(body, url) {
 
 	videos = getVideos(doc);
 
-	return createResponseData(url, false, title, description, "text/html", mediaType, images, videos);
+	return createResponseData(url, host, false, title, description, "text/html", mediaType, images, videos);
 }
 
 function getTitle(doc){
@@ -226,16 +231,18 @@ function getVideos(doc) {
 }
 
 function parseMediaResponse(res, contentType, url) {
+    var host = res.request.uri["host"];
 	if(contentType.indexOf("image/") === 0) {
-		return createResponseData(url, false, "", "", contentType, "photo", [url]);
+		return createResponseData(url, host, false, "", "", contentType, "photo", [url]);
 	} else {
-		return createResponseData(url, false, "", "", contentType);
+		return createResponseData(url, host, false, "", "", contentType);
 	}
 }
 
-function createResponseData(url, loadFailed, title, description, contentType, mediaType, images, videos, audios) {
+function createResponseData(url, host, loadFailed, title, description, contentType, mediaType, images, videos, audios) {
 	return {
 		url: url,
+        host: host,
 		loadFailed: loadFailed,
 		title: title,
 		description: description,
