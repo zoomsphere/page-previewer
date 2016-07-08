@@ -10,8 +10,8 @@ function getPreview(urlObj, callback) {
     var url;
     var options = {
         timeout: 10000,
-        encoding: null
-    };
+        encoding: null,
+	};
 
     if (typeof(urlObj) === "object") {
         options = Object.assign(options, urlObj);
@@ -101,23 +101,23 @@ function parseResponse(body, url) {
 }
 
 function getTitle(doc){
-    var title = doc("title").text();
+    var title = doc("meta[property='og:title']").attr("content");
 
-    if(title === undefined || !title){
-        title = doc("meta[property='og:title']").attr("content");
+    if (title === undefined || !title) {
+        title = doc("title").text();
     }
 
     return title;
 }
 
 function getDescription(doc){
-    var description = doc("meta[name=description]").attr("content");
+    var description = doc("meta[property='og:description']").attr("content");
 
     if(description === undefined) {
-        description = doc("meta[name=Description]").attr("content");
+        description = doc("meta[name=description]").attr("content");
 
         if(description === undefined) {
-            description = doc("meta[property='og:description']").attr("content");
+            description = doc("meta[name=Description]").attr("content");
         }
     }
 
@@ -125,15 +125,11 @@ function getDescription(doc){
 }
 
 function getMediaType(doc) {
-	var node = doc("meta[name=medium]"),
-		content;
-
-	if(node.length) {
-		content = node.attr("content");
-		return content == "image" ? "photo" : content;
-	} else {
-		return doc("meta[property='og:type']").attr("content");
+    var type = doc("meta[property='og:type']").attr("content");
+	if(type === undefined) {
+        type = doc("meta[name=medium]").attr("content");
 	}
+    return type == "image" ? "photo" : type;
 }
 
 var minImageSize = 50;
