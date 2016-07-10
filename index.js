@@ -69,6 +69,10 @@ function decodeBody(response, bodyBuffer) {
     var charset = getCharset(response, bodyBuffer);
 
     if (charset) {
+		charset = charset.toLowerCase();
+		if (charset.match(/ms(\d+)/g)) {
+			charset = charset.replace('ms', 'windows');
+		}
         try {
             var decodedBody = iconv.decode(bodyBuffer, charset);
             return decodedBody;
@@ -166,7 +170,7 @@ function getImages(doc, pageUrl) {
 		src = doc("link[rel=image_src]").attr("href");
 		if(src) {
             src = urlObj.resolve(pageUrl, src);
-            images = [ src ];
+			if (src.indexOf('sign') == -1) images = [ src ];
 		} else {
 			nodes = doc("img");
 
