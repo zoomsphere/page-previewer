@@ -175,7 +175,6 @@ function getMediaType(doc) {
     return type == "image" ? "photo" : type;
 }
 
-var minImageSize = 50;
 function getImages(doc, pageUrl) {
     var images = [], nodes, src,
         width, height,
@@ -193,31 +192,27 @@ function getImages(doc, pageUrl) {
         });
     }
 
+    var minImageSize = 300;
     if (images.length <= 0) {
-        src = doc("link[rel=image_src]").attr("href");
-        if (src) {
-            src = urlObj.resolve(pageUrl, src);
-            if (!src.indexOf('sign')) images = [src];
-        } else {
-            nodes = doc("img");
-            if (nodes.length) {
-                dic = {};
-                images = [];
-                nodes.each(function (index, node) {
-                    src = node.attribs["src"];
-                    if (src && !dic[src]) {
-                        dic[src] = 1;
-                        width = node.attribs["width"] || minImageSize;
-                        height = node.attribs["height"] || minImageSize;
-                        src = urlObj.resolve(pageUrl, src);
-                        if (width >= minImageSize && height >= minImageSize && !isAdUrl(src)) {
-                            images.push(src);
-                        }
+        nodes = doc("img");
+        if (nodes.length) {
+            dic = {};
+            images = [];
+            nodes.each(function (index, node) {
+                src = node.attribs["src"];
+                if (src && !dic[src]) {
+                    dic[src] = 1;
+                    width = node.attribs["width"] || minImageSize;
+                    height = node.attribs["height"] || minImageSize;
+                    src = urlObj.resolve(pageUrl, src);
+                    if (width >= minImageSize && height >= minImageSize && !isAdUrl(src)) {
+                        images.push(src);
                     }
-                });
-            }
+                }
+            });
         }
     }
+
     return images;
 }
 
