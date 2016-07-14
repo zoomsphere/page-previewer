@@ -32,7 +32,6 @@ function getPreview(urlObj, callback) {
 
             var redirectUrl = getNaverLazyFrameURL(uri, doc);
             if (redirectUrl) {
-                console.log('redirect:', redirectUrl);
                 options.originalUri = options.uri;
                 options.uri = redirectUrl;
                 getPreview(options, callback);
@@ -51,6 +50,7 @@ function getPreview(urlObj, callback) {
     });
 
     req.on("response", function (res) {
+        var host = req.host;
         var contentType = res.headers["content-type"];
         if (contentType && contentType.indexOf("text/html") !== 0) {
             req.abort();
@@ -146,8 +146,12 @@ function parseDocument(doc, url) {
 function getTitle(doc) {
     var title = doc("meta[property='og:title']").attr("content");
 
-    if (title === undefined || !title) {
-        title = doc("title").text();
+    if (!title) {
+        title = doc("meta[property='title']").attr("content");
+
+        if (!title) {
+            title = doc("title").text();
+        }
     }
 
     return title;
@@ -192,12 +196,13 @@ function getImages(doc, pageUrl) {
         });
     }
 
-    var minImageSize = 300;
+    var minImageSize = 500;
+    var maxImageSize = 1080;
     if (images.length <= 0) {
         nodes = doc("img");
         if (nodes.length) {
             dic = {};
-            images = [];
+            var tempArray = [];
             nodes.each(function (index, node) {
                 src = node.attribs["src"];
                 if (src && !dic[src]) {
@@ -205,11 +210,19 @@ function getImages(doc, pageUrl) {
                     width = node.attribs["width"] || minImageSize;
                     height = node.attribs["height"] || minImageSize;
                     src = urlObj.resolve(pageUrl, src);
-                    if (width >= minImageSize && height >= minImageSize && !isAdUrl(src)) {
-                        images.push(src);
+                    if (width >= minImageSize && height >= minImageSize &&
+                        width < maxImageSize && height < maxImageSize && !isAdUrl(src)) {
+                        var size = width * height;
+                        tempArray.push({ size: size, image: src });
                     }
                 }
             });
+            tempArray.sort(function (a, b) {
+                return b.size - a.size;
+            });
+            for (var obj in tempArray) {
+                images.push(obj.image);
+            }
         }
     }
 
@@ -281,8 +294,11 @@ function getAudios(doc) {
 
 function getKeywords(doc) {
     var keywords;
-    var keywordsString = doc("meta[name='keywords']").attr("content");
+    var keywordsString = doc("meta[name='og:keywords']").attr("content");
 
+    if (!keywordsString) {
+        keywordsString = doc("meta[name='keywords]").attr("content");
+    }
     if (keywordsString) {
         keywords = keywordsString.split(',');
     } else {
