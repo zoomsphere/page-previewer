@@ -297,7 +297,7 @@ function getKeywords(doc) {
     var keywordsString = doc("meta[name='og:keywords']").attr("content");
 
     if (!keywordsString) {
-        keywordsString = doc("meta[name='keywords]").attr("content");
+        keywordsString = doc("meta[name='keywords']").attr("content");
     }
     if (keywordsString) {
         keywords = keywordsString.split(',');
