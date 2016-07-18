@@ -220,8 +220,8 @@ function getImages(doc, pageUrl) {
             tempArray.sort(function (a, b) {
                 return b.size - a.size;
             });
-            for (var obj in tempArray) {
-                images.push(obj.image);
+            for (var i in tempArray) {
+                if (tempArray[i].image) images.push(tempArray[i].image);
             }
         }
     }
