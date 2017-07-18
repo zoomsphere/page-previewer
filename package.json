@@ -8,7 +8,7 @@
   },
   "repository": "git://github.com/myspace/page-previewer.git",
   "dependencies": {
-    "cheerio": "0.13.1",
+    "cheerio": "0.22.0",
     "iconv-lite": "^0.4.4",
     "request": "2.12.0"
   },
